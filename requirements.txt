@@ -1,0 +1,6 @@
+# Unpinned dependencies inferred from imports; historical versions unconfirmed.
+numpy
+pandas
+scipy
+matplotlib
+openpyxl
