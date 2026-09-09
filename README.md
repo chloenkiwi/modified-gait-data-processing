@@ -12,10 +12,6 @@ python processing/sync.py --site 1 --raw-root C:/data/raw --output-root C:/data/
 ```
 
 - Sites 1/2: treadmill cohort; site 3: overground cohort.
-- IMU, optical trajectories, and Visual3D kinematics inputs must already be
-  100 Hz; no resampling is performed. Force exports use 1000 Hz.
-- For IMU-only recordings, add `--mode outdoor --trials overground stair`.
-  Their `Time (s)` index is reconstructed from sample indices at 100 Hz.
 - Use a new output folder and inspect synchronization diagnostic plots.
 
 Inputs: `raw/subject_info.xlsx` and `raw/RAW_KEY/{imu, vicon, v3d, gait event}/`,
