@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+*.csv
+*.xlsx
+*.mat
+*.c3d
+*.zip
+*.log
+raw/
+output/
+.vscode/

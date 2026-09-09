@@ -17,17 +17,12 @@ def parse_args():
     return parser.parse_args()
 
 
-def trial_records(folder, trials, overground):
+def trial_records(folder, trials):
     for trial in trials:
-        if overground:
-            # Preserve legacy acquisition-directory order and repeat suffixes.
-            matches = [f[:-4] for f in os.listdir(folder) if f.startswith(trial)]
-            for i, name in enumerate(matches):
-                yield name, trial if i == 0 else trial + str(i)
-        elif (folder / (trial + '.csv')).exists():
-            yield trial, trial
-        else:
-            print('Optical input unavailable:', trial)
+        # Preserve legacy acquisition-directory order and repeat suffixes.
+        matches = [f[:-4] for f in os.listdir(folder) if f.startswith(trial)]
+        for i, name in enumerate(matches):
+            yield name, trial if i == 0 else trial + str(i)
 
 
 def save_frame(frame, destination, start, stop, rate):
@@ -87,16 +82,21 @@ def process(args, toolkit, segments):
             imu.new_headers(calibrated)
             folder = output / name
             folder.mkdir(parents=True, exist_ok=True)
-            imu.data_frame.to_csv(folder / 'imu.csv')
+
+            data = imu.data_frame.copy()
+            data.index = (
+                data.index.to_numpy(dtype=float) - float(data.index[0])
+            ) / float(imu.sample_rate)
+            data.to_csv(folder / 'imu.csv', index_label='Time (s)')
         return
 
-    sheet = args.sheet or ('Subjects' if overground else 'Sheet1')
+    sheet = args.sheet if args.sheet is not None else 0
     metadata = pd.read_excel(args.raw_root / 'subject_info.xlsx', sheet_name=sheet)
     selected = metadata[metadata['Subject Name'] == args.subject]
     if len(selected) != 1:
         raise ValueError('Raw metadata must contain exactly one matching Subject Name.')
     info = selected.iloc[0]
-    for name, export_name in trial_records(raw / 'vicon', args.trials, overground):
+    for name, export_name in trial_records(raw / 'vicon', args.trials):
         optical = toolkit.ViconCsvReader(str(raw / 'vicon' / (name + '.csv')), segments, None, info)
         imu = read_imu(name)
         if overground and imu is None:
@@ -106,15 +106,15 @@ def process(args, toolkit, segments):
         minimum = initial
         lag = None
         if imu is not None:
-            optical_norm = optical.get_angular_velocity_theta('R_SHANK', 3000 if overground else 4000)
-            imu_norm = imu.get_norm('R_SHANK', 'Gyro')[:3000 if overground else 3200]
+            optical_norm = optical.get_angular_velocity_theta('R_SHANK', 3000)
+            imu_norm = imu.get_norm('R_SHANK', 'Gyro')[:3000]
             lag = toolkit.sync_via_correlation(optical_norm, imu_norm, True)
             minimum = min(initial, lag)
             imu.crop(lag - minimum)
         optical_delay = -minimum
         optical.crop(optical_delay)
         v3d_path = str(raw / 'v3d' / (name + '.csv'))
-        v3d = toolkit.Visual3dCsvReader(v3d_path, optical.sample_rate['Trajectories']) if overground else toolkit.Visual3dCsvReader(v3d_path)
+        v3d = toolkit.Visual3dCsvReader(v3d_path)
         v3d.crop(optical_delay)
         optical.reset_index(0)
         v3d.reset_index(0)

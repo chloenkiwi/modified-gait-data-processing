@@ -1,0 +1,29 @@
+Create_Hybrid_Model
+! /CALIBRATION_FILE=
+! /SUFFIX=
+! /RANGE=ALL_FRAMES
+! /SET_PROMPT=Open standing file
+;
+
+Apply_Model_Template
+! /CALIBRATION_FILE=
+/MODEL_TEMPLATE=dataset_model_FOR_6HOSPITAL.mdh
+! /SET_PROMPT=Open model file
+! /VIEW_BUILDMODEL_RESULTS=2
+;
+
+Build_Model
+! /CALIBRATION_FILE=
+! /REBUILD_ALL_MODELS=FALSE
+! /DISPLAY_RESULTS=TRUE
+;
+
+Switch_to_FJ_PostProcessing_Tab
+! /MODE=0
+;
+
+Save_Model_Template
+! /CALIBRATION_FILE=
+/MODEL_TEMPLATE= EVENT_EXPORT\model.mdh
+;
+
