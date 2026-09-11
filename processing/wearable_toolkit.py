@@ -72,7 +72,7 @@ class ViconCsvReader:
             for (segment, markers) in segment_definitions.items():
                 segment_data = pd.Series(dict([(marker, calibrate_data[marker]) for marker in markers]))
                 self.fill_missing_marker(segment_data, self.segment_data[segment])
-        if COHORT == 'overground':
+        if COHORT == 'walkway':
             force_names_japan = ['Imported Kistler Force Plate (Internal Amplifier) #' + plate_num + ' - ' + data_type for plate_num in ['1', '2', '3', '4'] for data_type in ['Force', 'Moment', 'CoP']]
             if force_names_japan[0] in self.data.keys():
                 used_force_names = force_names_japan
@@ -109,7 +109,7 @@ class ViconCsvReader:
     def new_headers(self, sixth_hospital=False, Kyoto=False):
         for col in self.data_frame.columns:
             self.data_frame.rename(columns={col: col + ' (mm)'}, inplace=True)
-        if COHORT == 'overground':
+        if COHORT == 'walkway':
             for col in self.force_df.columns:
                 if sixth_hospital or Kyoto:
                     if 'plate_1' in col:

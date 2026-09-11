@@ -150,7 +150,7 @@ def process(args, toolkit, segments):
 
 def main():
     args = parse_args()
-    os.environ['GAIT_COHORT'] = 'overground' if args.site == 3 else 'treadmill'
+    os.environ['GAIT_COHORT'] = 'walkway' if args.site == 3 else 'treadmill'
     # Configure once before importing shared readers; one site per process.
     import wearable_toolkit
     from const import SEGMENT_DEFINITIONS
